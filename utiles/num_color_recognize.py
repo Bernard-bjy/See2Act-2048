@@ -7,58 +7,56 @@ import numpy as np
 # color_num map
 color_num_map = {
     (193,179,165): 0,
-    (182, 171, 161): 2,
-    (184, 169, 152): 4,
-    (245, 205, 177): 8,
-    (247, 187, 162): 16,
-    (248, 182, 169): 32,
-    (248, 164, 149): 64,
-    (240, 214, 154): 128,
+    (234, 222, 209): 2,
+    (232, 217, 188): 4,
+    (238, 161, 102): 8,
+    (240, 129, 81): 16,
+    (241, 101, 78): 32,
+    (241, 71, 45): 64,
+    (232, 198, 95): 128,
     (0, 128, 0): 256,
-    (238, 200, 114): 512,
+    (232, 191, 64): 512,
     (128, 128, 0): 1024,
-    (240, 205, 125): 2048,
+    (241, 183, 36): 2048,
     }
 
 class NumColorRecognizer:
-    def __init__(self):
-        pass
+    def __init__(self, debug=False):
+        self.debug = debug
     
+    def get_bg_sample_box(self, cell_x, cell_y, cell_w, cell_h, ratio = 0.1):
+        """
+        Get a sample box for background color sampling.
+        return the coordinates of the sample box (x, y, w, h).
+        """
+        sample_size = min(cell_w, cell_h) * ratio  # Sample box size as a fraction of the cell size
+        x = int(cell_x + (cell_w - sample_size) / 2)  # Center the sample box within the cell
+        y = int(cell_y + (cell_h * (1 - ratio)) - sample_size)  # Place the sample box near the bottom of the cell
+        w = int(sample_size)
+        h = int(sample_size)
+        return x, y, w, h
+
     def recognize_tile(self, tile_img):
         """
         Recognize the number on a tile based on its color.(BGR format)
         return the number on the tile, or None if the color is not recognized.
         """
-        # Find the center region of the tile to avoid edge effects
         h, w = tile_img.shape[:2]
-        
-        # Debug visualization
-        debug = tile_img.copy()
-        cv2.rectangle(debug, (w//3, h//3), (2*w//3, 2*h//3), (0, 255, 0), 2)
-        cv2.imshow("Tile Debug", debug)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-        center_color = tile_img[h//3:2*h//3, w//3:2*w//3]  # Get the color
-
-        # # Avoid edge effects by focusing on the center region of the tile
-        # margin = 0.2  # Adjust the margin as needed
-
-        # y1 = int(h * margin)
-        # y2 = int(h * (1 - margin))
-        # x1 = int(w * margin)
-        # x2 = int(w * (1 - margin))
-
-        # # Ensure the coordinates are within the image bounds
-        # bg_region = tile_img[y1:y2, x1:x2]  # Get the background region
-
-        # # Find the median color
-        # median_color = np.median(bg_region, axis=(0,1))  # Median color in BGR format
-        # rgb = tuple(int(x) for x in median_color[::-1])  # Convert to RGB format
-
-        # Calculate the average color in the center region
-        avg_color = np.mean(center_color, axis=(0, 1)) # Average color in BGR format
+        # 1. Get the sample box for background color sampling
+        sx, sy, sw, sh = self.get_bg_sample_box(0, 0, w, h) # Get the cooerdinates of the sample box
+        # 2. Extract the sample box region from the tile image
+        sample = tile_img[sy:sy+sh, sx:sx+sw]  # Extract the sample box region
+        # 3. Calculate the average color in the sample box
+        avg_color = np.mean(sample, axis=(0, 1)).astype(int)  # Average color in BGR format
         avg_rgb = tuple(int(x) for x in avg_color[::-1])  # Convert to RGB format
+
+        if self.debug:
+            debug_img = tile_img.copy()
+            cv2.rectangle(debug_img, (sx, sy), (sx+sw, sy+sh), (0, 255, 0), 2)  # Draw the sample box
+            cv2.putText(debug_img, f"Avg RGB: {avg_rgb}", (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+            cv2.imshow(f"Tile Debug RGB{avg_rgb}", debug_img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
 
         # Find the closest color in the color_num_map
         best_match = None
@@ -70,7 +68,7 @@ class NumColorRecognizer:
                 min_distance = distance
                 best_match = num
         
-        if min_distance >10:  # Threshold for color matching, adjust as needed
+        if min_distance > 35:  # Threshold for color matching, adjust as needed
             print(f"Warning, unknown color: avg_rgb={avg_rgb}, best_match={best_match}, distance={min_distance:.1f}")
             # Print the recognized color and number
             print(f"Tile color:RGB={avg_rgb}, best_match={best_match}, distance={min_distance:.1f}  ")
