@@ -38,17 +38,17 @@ class SplitBoard:
             tiles.append(row_tiles)
         return tiles
     
-    def visualize_tiles(self, tiles):
-        """
-        Visualize the split tiles by drawing rectangles on the original board image.
-        """
-        fig, axes = plt.subplots(4, 4, figsize=(10, 10))
+    # def visualize_tiles(self, tiles):
+    #     """
+    #     Visualize the split tiles by drawing rectangles on the original board image.
+    #     """
+    #     fig, axes = plt.subplots(4, 4, figsize=(10, 10))
 
-        for i in range(4):
-            for j in range(4):
-                axes[i, j].imshow(cv2.cvtColor(tiles[i][j], cv2.COLOR_BGR2RGB))
-                axes[i, j].set_title(f"{i},{j}")
-                axes[i, j].axis('off')
+    #     for i in range(4):
+    #         for j in range(4):
+    #             axes[i, j].imshow(cv2.cvtColor(tiles[i][j], cv2.COLOR_BGR2RGB))
+    #             axes[i, j].set_title(f"{i},{j}")
+    #             axes[i, j].axis('off')
 
-        plt.tight_layout()
-        plt.show()
+    #     plt.tight_layout()
+    #     plt.show()

@@ -51,7 +51,7 @@ def main():
     # Split the board into cells
     splitter = SplitBoard(board_img)
     tiles = splitter.split_into_cells()
-    splitter.visualize_tiles(tiles)
+    # splitter.visualize_tiles(tiles)
 
     # Convert the tiles to a matrix of numbers
     matrix = NumColorRecognizer().board_to_matrix(tiles)
