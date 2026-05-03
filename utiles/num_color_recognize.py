@@ -45,7 +45,7 @@ class NumColorRecognizer:
     yellow_reference_rgb = (231, 186, 49) # value of 1024(just reference, could be any yellow tile)
     yellow_rgb_radius = 20 # just exp, radius can be changed
 
-    def __init__(self, debug=True):
+    def __init__(self, debug=False):
         self.debug = debug
     
     def get_bg_sample_box(self, cell_x, cell_y, cell_w, cell_h, ratio = 0.1):
