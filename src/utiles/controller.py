@@ -29,7 +29,7 @@ class GameControl:
         }
 
         # path of btn
-        self.reset_btn_path = '/Users/bijunyao/Desktop/AI Develop/2048决策智能体/2048项目包/Try again.png'
+        self.reset_btn_path = '/Users/bijunyao/Desktop/AI Develop/2048决策智能体/See2Act-2048/assets/Try again.png'
 
         # pyautogui.FAILSAFE = True
         self.running = True
